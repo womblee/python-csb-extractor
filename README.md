@@ -13,7 +13,7 @@ extractdir = Directory from which the .csb files will be extracted
 outputdir = Output folder in which every .csb file will extract
 ```
 Also, the bms script and QuickBMS exe must be in the same folder
-3. Run main.py
+2. Run main.py
 
 # Requirements
 QuickBMS,
