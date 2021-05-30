@@ -9,42 +9,32 @@ except ImportError:
 settings = ConfigParser()
 settings.read('settings.ini')
 
-QuickBMS = settings.get('Config', 'quickbmsdir')
+QuickBMSDir = settings.get('Config', 'quickbmsdir')
 Output = settings.get('Config', 'outputdir')
-DyingLight = settings.get('Config', 'dyinglightdir')
+ExtractDir = settings.get('Config', 'extractdir')
+BMSScript = settings.get('Config', 'bmsscript')
+BMSexe = settings.get('Config', 'quickbmsexe')
 
-if not Path(QuickBMS).is_dir():
-   raise ValueError("QuickBMS Directory not found")
+if not Path(QuickBMSDir).is_dir(): raise ValueError("QuickBMS Directory not found")
+if not Path(Output).is_dir(): raise ValueError("Output Directory not found")
+if not Path(ExtractDir).is_dir(): raise ValueError("Directory from wich we will extract not found")
 
-if not Path(Output).is_dir():
-   raise ValueError("Output Directory not found")
+if not Path(QuickBMSDir + '/' + BMSScript).is_file(): raise ValueError("BMS Script in: " + QuickBMSDir + "not found")
+if not Path(QuickBMSDir + '/' + BMSexe).is_file(): raise ValueError("QuickBMS Exe in: " + QuickBMSDir + "not found")
 
-if not Path(DyingLight).is_dir():
-   raise ValueError("Dying Light Directory not found")
+if not Path(ExtractDir).glob('*.csb'):
+    raise ValueError("There were no .csb files in the directory: " + ExtractDir)
 
-if not Path(QuickBMS + '/dying_light.bms').is_file():
-    raise ValueError("BMS Script not found")
+for csb_file in Path(ExtractDir).glob('*.csb'):
+    if Path(Output + "/" + csb_file.name).exists():
+        if Path(Output + "/" + csb_file.name).glob('*.fsb'):
+            for fsb_file in Path(Output + "/" + csb_file.name).glob('*.fsb'):            
+                fsb_file.unlink()
 
-if not Path(QuickBMS + '/quickbms.exe').is_file():
-    raise ValueError("QuickBMS not found")
-
-CSBs = [
-    'all_in_maps_1.csb',
-    'all_in_maps_2.csb',
-    'all_in_maps_3.csb',
-    'all_in_maps_persistant.csb',
-    'Menu.csb',
-    'Music_1.csb',
-    'Music_2.csb',
-    'Music_3.csb',
-]
-
-for i in range(len(CSBs)):
-    Path(Output + "/" + CSBs[i]).mkdir()
-    result = subprocess.run([QuickBMS+"/quickbms.exe", QuickBMS+"/dying_light.bms", DyingLight+"/DW/Data/" + CSBs[i], Output + "/" + CSBs[i]], capture_output=True)
+    if not Path(Output + "/" + csb_file.name).exists():
+        Path(Output + "/" + csb_file.name).mkdir()
+    
+    result = subprocess.run([QuickBMSDir + "/" + BMSexe, QuickBMSDir + "/" + BMSScript, ExtractDir + "/" + csb_file.name, Output + "/" + csb_file.name], capture_output=True)
     
     sys.stdout.buffer.write(result.stdout)
     sys.stderr.buffer.write(result.stderr)
-    
-
-
