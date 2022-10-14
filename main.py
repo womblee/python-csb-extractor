@@ -1,10 +1,7 @@
 import subprocess
 import sys
 from pathlib import Path
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import ConfigParser # ver. < 3.0
+from configparser import ConfigParser
 
 settings = ConfigParser()
 settings.read('settings.ini')
